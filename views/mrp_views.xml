@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- rendo visibli i seguenti punti di menu solo se vengono attivati gli ordini di lavoro -->
+        <menuitem id="mrp.menu_pm_resources_config"
+            name="Resources"
+            groups="mrp.group_mrp_routings"
+            parent="mrp.menu_mrp_configuration"
+            sequence="100"/>
+ 
+        <menuitem id="mrp.mrp_message_menu"
+              parent="mrp.menu_mrp_manufacturing"
+              groups="mrp.group_mrp_routings"
+              action="mrp.mrp_message_action_main"
+              sequence="26"/>
+
+    </data>
+</odoo>

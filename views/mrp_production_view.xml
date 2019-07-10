@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<openerp>
+    <data>
+
+        <record id="view_mrp_production_editable_lines" model="ir.ui.view">
+            <field name="name">mrp.production.editable.lines</field>
+            <field name="model">mrp.production</field>
+            <field name="inherit_id" ref="mrp.mrp_production_form_view"/>
+            <field name="arch" type="xml">
+               <!--rende modificabili le righe delle materie prime da utilizzare-->
+                <xpath expr="//field[@name='move_raw_ids']/tree" position="attributes">
+                    <attribute name="delete">1</attribute>
+                    <attribute name="create">1</attribute>
+                    <attribute name="decoration-info">state=='draft'</attribute>
+                    <attribute name="decoration-danger">quantity_available &lt; product_uom_qty and state!='draft'</attribute>
+                </xpath>
+                <xpath expr="//field[@name='move_raw_ids']/tree/field[@name='product_uom_qty']" position="attributes">
+                    <attribute name="readonly">0</attribute>
+                </xpath>
+                <xpath expr="//field[@name='move_raw_ids']/tree/field[@name='product_id']" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state','not in',['draft','cancel'])]}</attribute>
+                </xpath>
+                <xpath expr="//field[@name='move_raw_ids']/tree/field[@name='product_id']" position="before">
+                    <field name="name" invisible="1" />
+                </xpath>
+                <!--aggiungo il riferimento alla vista form dei movimenti che ha i bottoni per la gestione del singolo movimento di consumo delle materie prime-->
+                <xpath expr="//field[@name='move_raw_ids']" position="attributes">
+                    <attribute name="context">{'default_location_id': location_src_id, 
+                                               'default_location_dest_id': location_dest_id,
+                                               'form_view_ref':'stock.view_move_picking_form', 
+                                               'move_form_from_mo': True}</attribute>
+                </xpath>
+                <!--rende non modificabili il prodotto e l'unità di misura nei prodotti finiti-->
+                <xpath expr="//field[@name='move_finished_ids']/tree/field[@name='product_id']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+                <xpath expr="//field[@name='move_finished_ids']/tree/field[@name='product_uom']" position="attributes">
+                    <attribute name="readonly">1</attribute>
+                </xpath>
+
+                <field name="date_planned_start" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state','in',['done','cancel'])]}</attribute>
+                </field>
+                <field name="user_id" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state','in',['done','cancel'])]}</attribute>
+                </field>
+                <field name="origin" position="attributes">
+                    <attribute name="attrs">{'readonly': [('state','in',['done','cancel'])]}</attribute>
+                </field>
+
+            </field>
+        </record>
+
+        <record id="view_cq_move_form_production" model="ir.ui.view">
+            <field name="name">view.cq.move.form.production</field>
+            <field name="model">stock.move</field>
+            <field name="inherit_id" ref="cq_stock_10.view_cq_move_form_picking"/>
+            <field name="arch" type="xml">
+                <xpath expr="//button[@name='action_confirm' and @states='cancel']" position="attributes">
+                    <attribute name="invisible">context.get('move_form_from_mo', False)</attribute>
+                </xpath>
+            </field>
+        </record>
+
+    <record model="ir.ui.view" id="popup_confim_button_mark_done">
+        <field name="name">popup_confim_button_mark_done</field>
+        <field name="model">mrp.production</field>
+        <field eval="1000" name="priority"/>
+        <field name="arch" type="xml">
+            <form>
+                <p>I componenti non sono stati consumati completamente, le quantità in eccesso verranno annullate.<br/>Proseguire?</p>
+                <footer>
+                    <button name="button_mark_done" type="object" string="Continua" class="oe_highlight" context="{'force_button_mark_done':True}" />
+                    <button string="Annulla" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+  
+    </data>
+</openerp>
